@@ -1,0 +1,245 @@
+//import section
+
+parser code{:
+
+public static void main(String[]args){
+        try{
+        FileReader file=new FileReader(args[0]);
+        Scanner scanner=new Lexer(file);
+        Parser parser=new Parser(scanner);
+        parser.debug_parse();
+        }
+        catch(Exception e){
+        System.out.println(e);
+        }
+        }
+
+        :};
+
+//Terminal symbols
+        terminal MAIN,INTEGER,REAL,CHAR,READ,WRITE,PLUS,SUB,MUL,DIV,CASE,OF,END;
+        terminal ID,CONST,SEMI,DOTDOT,COMMA,ASSIGN,LEFTPAR,RIGHTPAR,LEFTBOX,RIGHTBOX,LEFTBRACE,RIGHTBRACE;
+
+//Nonterminal symbols
+        non terminal Program,Block,VarSection,VarDecl,Type,NameList,Name,DimList,Dimenssion;
+        non terminal Statement,StatementList,CaseStatement,Variable,Expression,VarList,ExpressionList,AlternativeList,Alternative,AddOperator;
+        non terminal Term,MulOperator,Factor,IndexList,Index;
+
+//Grammar
+
+        Program::=MAIN LEFTPAR RIGHTPAR Block
+        {:
+        System.out.println("Smena 1.");
+        :};
+
+        Block::=LEFTBRACE VarSection StatementList RIGHTBRACE
+        {:
+        System.out.println("Smena 2.");
+        :};
+
+        VarSection::=VarSection VarDecl
+        {:
+        System.out.println("Smena 3.");
+        :}
+        |VarDecl
+        {:
+        System.out.println("Smena 4.");
+        :}
+        ;
+
+        VarDecl::=Type NameList SEMI
+        {:
+        System.out.println("Smena 5.");
+        :};
+
+        NameList::=NameList COMMA Name
+        {:
+        System.out.println("Smena 6.");
+        :}
+        |Name
+        {:
+        System.out.println("Smena 7.");
+        :}
+        ;
+
+        Name::=ID DimList
+        {:
+        System.out.println("Smena 8.");
+        :};
+
+        DimList::=DimList Dimenssion
+        {:
+        System.out.println("Smena 9.");
+        :}
+        |
+        {:
+        System.out.println("Smena 10.");
+        :}
+        ;
+
+        Dimenssion::=LEFTBOX CONST RIGHTBOX
+        {:
+        System.out.println("Smena 11.");
+        :};
+
+        Type::=INTEGER
+        {:
+        System.out.println("Smena 12.");
+        :}
+        |REAL
+        {:
+        System.out.println("Smena 13.");
+        :}
+        |CHAR
+        {:
+        System.out.println("Smena 14.");
+        :}
+        ;
+
+        StatementList::=StatementList Statement
+        {:
+        System.out.println("Smena 15.");
+        :}
+        |Statement
+        {:
+        System.out.println("Smena 16.");
+        :}
+        ;
+
+        Statement::=CaseStatement
+        {:
+        System.out.println("Smena 17.");
+        :}
+        |Variable ASSIGN Expression SEMI
+        {:
+        System.out.println("Smena 18.");
+        :}
+        |READ LEFTPAR VarList RIGHTPAR SEMI
+        {:
+        System.out.println("Smena 19.");
+        :}
+        |WRITE LEFTPAR ExpressionList RIGHTPAR SEMI
+        {:
+        System.out.println("Smena 20.");
+        :}
+        |Block
+        {:
+        System.out.println("Smena 21.");
+        :}
+        ;
+
+        CaseStatement::=CASE Expression OF AlternativeList END
+        {:
+        System.out.println("Smena 22");
+        :}
+        ;
+
+        AlternativeList::=AlternativeList SEMI Alternative
+        {:
+        System.out.println("Smena 23");
+        :}
+        |Alternative
+        {:
+        System.out.println("Smena 24");
+        :}
+        ;
+
+        Alternative::=CONST DOTDOT Statement
+        {:
+        System.out.println("Smena 25");
+        :}
+        ;
+
+        Expression::=Expression AddOperator Term
+        {:
+        System.out.println("Smena 26");
+        :}
+        |Term
+        {:
+        System.out.println("Smena 27");
+        :}
+        ;
+
+        AddOperator::=PLUS
+        {:
+        System.out.println("Smena 28");
+        :}
+        |SUB
+        {:
+        System.out.println("Smena 29");
+        :}
+        ;
+
+        Term::=Term MulOperator Factor
+        {:
+        System.out.println("Smena 30.");
+        :}
+        |Factor
+        {:
+        System.out.println("Smena 31.");
+        :}
+        ;
+
+        MulOperator::=MUL
+        {:
+        System.out.println("Smena 32");
+        :}
+        |DIV
+        {:
+        System.out.println("Smena 33");
+        :}
+        ;
+
+        Factor::=Variable
+        {:
+        System.out.println("Smena 34.");
+        :}
+        |CONST
+        {:
+        System.out.println("Smena 35.");
+        :}
+        |LEFTPAR Expression RIGHTPAR
+        {:
+        System.out.println("Smena 36.");
+        :}
+        ;
+
+        Variable::=ID IndexList
+        {:
+        System.out.println("Smena 37.");
+        :};
+
+        IndexList::=IndexList Index
+        {:
+        System.out.println("Smena 38.");
+        :}
+        |
+        {:
+        System.out.println("Smena 39.");
+        :}
+        ;
+
+        Index::=LEFTBOX Expression RIGHTBOX
+        {:
+        System.out.println("Smena 40.");
+        :};
+
+        VarList::=VarList COMMA Variable
+        {:
+        System.out.println("Smena 41.");
+        :}
+        |Variable
+        {:
+        System.out.println("Smena 42.");
+        :}
+        ;
+
+        ExpressionList::=ExpressionList COMMA Expression
+        {:
+        System.out.println("Smena 43.");
+        :}
+        |Expression
+        {:
+        System.out.println("Smena 44.");
+        :}
+        ;
