@@ -4,79 +4,83 @@ import java_cup.runtime.*;
 %%
 
 // declaration section
-        %class Lexer
+%class Lexer
 %cup
-        %line
-        %column
+%line
+%column
 
-        %eofval{
-        return new Symbol( sym.EOF );
-        %eofval}
+%eofval{
+    return new Symbol( sym.EOF );
+%eofval}
 
-        %{
-public int getLine() {
+%{
+    public int getLine() {
         return yyline;
-        }
-        %}
+    }
+%}
 
-//states
-        %state COMMENT
+// states
+%state COMMENT
 
-//macros
-        Letter = [a-zA-Z]
-        Figure = [0-9]
-        Punctuation = [\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\\\^\_\`\{\}\~]
-        Binary = [0-1]+
-        Octal = [0-7]+
-        Decimal = 0 | [1-9][0-9]*
-        Hex = [0-9a-fA-F]+
-        Number = 2#{Binary} | 8#{Octal} | 10#{Decimal} | 16#{Hex} | #{Hex} | {Decimal}
-        Real = {Figure}+\.({Figure}+)?(E[\+-]?{Figure}+)?
-        Char = '{Letter}' | '{Figure}' | '{Punctuation}'
-        ID = {Letter}({Letter}|{Figure})*
-        Const = {Number} | {Real} | {Char}
+// makroi: https://andreil26.github.io/me/uniprojects/2019/06/21/lexer_parser.html
+Letter = [a-zA-Z]
+Figure = [0-9]
+Punctuation = [\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\\\^\_\`\{\}\~]
+Decimal = 0 | [1-9][0-9]*
+Hex = [0-9a-fA-F]+
+Int = (\${Hex}) | {Decimal}
+Real = {Figure}+\.{Figure}*(E[\+\-]?{Figure}+)?
+Char = \'{Letter}\' | \'{Figure}\' | \'{Punctuation}\'
+Bool = true | false
+ID = ({Letter}|\_)({Letter}|{Figure}|\_)*
+Const = {Int} | {Real} | {Char} | {Bool}
+Comment = \(\*[^*]*(\*[^\)])*\*\)
 
-        %%
+%%
 
 // rules section
-        \-\-		{ yybegin( COMMENT );   }
+\-\-	    	{ yybegin( COMMENT );   }
 <COMMENT>\-\-	{ yybegin( YYINITIAL ); }
 <COMMENT>.		{ ; }
+[\t\r\n ]		{ ; }
 
-        [\t\r\n ]		{ ; }
+// operatori
+"main"	    { return new Symbol(sym.MAIN);	    }
+"("			{ return new Symbol(sym.LBR);         }
+")"			{ return new Symbol(sym.RBR);         }
+"{"			{ return new Symbol(sym.LCURLY);      }
+"}"			{ return new Symbol(sym.RCURLY);      }
+":"			{ return new Symbol(sym.COLON);       }
+"int"	    { return new Symbol(sym.INT); 	    }
+"char"	    { return new Symbol(sym.CHAR);    	}
+"real"      { return new Symbol(sym.REAL);        }
+"bool"	    { return new Symbol(sym.BOOL);    	}
+"repeat"	{ return new Symbol(sym.REPEAT);  	}
+"until"		{ return new Symbol(sym.UNTIL);   	}
+"="			{ return new Symbol(sym.EQUALS);      }
+";"			{ return new Symbol(sym.SEMICOLON);   }
+"read"		{ return new Symbol(sym.READ);    	}
+"write"		{ return new Symbol(sym.WRITE);   	}
+"||"		{ return new Symbol(sym.OR);          }
+"&&"		{ return new Symbol(sym.AND);         }
+"<" 		{ return new Symbol(sym.RELLT);       }
+"<=" 		{ return new Symbol(sym.RELLTEQ);     }
+"==" 		{ return new Symbol(sym.RELEQ);       }
+"!=" 		{ return new Symbol(sym.RELNEQ);      }
+">" 		{ return new Symbol(sym.RELGT);       }
+">=" 		{ return new Symbol(sym.RELGTEQ);     }
+"+"			{ return new Symbol(sym.PLUS);        }
+"-"         { return new Symbol(sym.MINUS);       }
+"*"			{ return new Symbol(sym.MUL);         }
+"/"         { return new Symbol(sym.DIV);         }
+","			{ return new Symbol(sym.COMMA);	    }
 
-//operators
-        "+"			{ return new Symbol( sym.PLUS );       }
-        "*"			{ return new Symbol( sym.MUL );        }
-        "-"         { return new Symbol( sym.SUB );        }
-        "/"         { return new Symbol( sym.DIV );        }
-
-//separators
-        ";"			{ return new Symbol( sym.SEMI );	   }
-        ","			{ return new Symbol( sym.COMMA );	   }
-        "="			{ return new Symbol( sym.ASSIGN );     }
-        ":"			{ return new Symbol( sym.DOTDOT );     }
-        "("			{ return new Symbol( sym.LEFTPAR );    }
-        ")"			{ return new Symbol( sym.RIGHTPAR );   }
-        "["			{ return new Symbol( sym.LEFTBOX );    }
-        "]"			{ return new Symbol( sym.RIGHTBOX );   }
-        "{"			{ return new Symbol( sym.LEFTBRACE );  }
-        "}"			{ return new Symbol( sym.RIGHTBRACE ); }
-
-//keywords
-        "main"	        { return new Symbol( sym.MAIN );	      }
-        "int"	        { return new Symbol( sym.INTEGER );	   }
-        "real"          { return new Symbol( sym.REAL );       }
-        "char"	        { return new Symbol( sym.CHAR );	      }
-        "read"		    { return new Symbol( sym.READ );	      }
-        "write"		    { return new Symbol( sym.WRITE );	   }
-        "case"			{ return new Symbol( sym.CASE ); }
-        "of"		  	{ return new Symbol( sym.OF ); }
-        "end"		  	{ return new Symbol( sym.END );	}
-
-//id-s
-        {ID}	{ return new Symbol( sym.ID );    }
-//constants
-        {Const}			{ return new Symbol( sym.CONST ); }
-//error symbol
-        .		            { System.out.println( "ERROR: " + yytext() ); }
+// ostalo
+{Int}       { return new Symbol(sym.INTEGER); }
+{Bool}      { return new Symbol(sym.BOOLEAN); }
+{Char}      { return new Symbol(sym.CHARACTER); }
+{Real}      { return new Symbol(sym.DOUBLE); }
+{ID}	    { return new Symbol(sym.ID);    }
+{Const}		{ return new Symbol(sym.CONST); }
+{Comment}   { /* ignore */ }
+.		    { System.out.println( "[Error]: " + yytext() ); }
